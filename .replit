@@ -1,18 +1,49 @@
-entrypoint = "main.py"
-modules = ["python-3.10:v18-20230807-322e88b"]
+import calendar
 
-[nix]
-channel = "stable-23_05"
+# === SETTINGS ===
+monthly_income = 6000
+monthly_savings_goal = 1000
+year = 2025
+month = 1  # January
 
-[env]
-VIRTUAL_ENV = "$REPL_HOME/.pythonlibs"
+# === Fixed Categories & Expenses ===
+fixed_expenses = [
+    {"description": "Groceries", "amount": 100, "category": "Groceries"},
+    {"description": "Rent", "amount": 1500, "category": "Rent"},
+    {"description": "Utilities", "amount": 500, "category": "Utilities"},
+    {"description": "Car Note + Insurance", "amount": 400, "category": "Car"},
+    {"description": "Health Insurance", "amount": 117, "category": "Health"},
+    {"description": "Phone Bill", "amount": 250, "category": "Phone"},
+]
 
-[unitTest]
-language = "python3"
+# === Display Monthly Calendar ===
+month_name = calendar.month_name[month]
+print(f"\n========== {month_name.upper()} {year} ==========")
+print(calendar.month(year, month))
+print(f"Monthly Income: ${monthly_income:.2f}\n")
 
-[gitHubImport]
-requiredFiles = [".replit", "replit.nix"]
+# === Add date to each expense (1st of month) ===
+for exp in fixed_expenses:
+    exp["date"] = f"{year}-{month:02d}-01"
 
-[deployment]
-run = ["python3", "main.py"]
-deploymentTarget = "cloudrun"
+# === Calculate Totals ===
+total_expenses = sum(exp["amount"] for exp in fixed_expenses)
+remaining_balance = monthly_income - total_expenses
+
+if remaining_balance >= monthly_savings_goal:
+    savings = monthly_savings_goal
+    remaining_balance -= savings
+else:
+    savings = max(0, remaining_balance)
+    remaining_balance = 0
+
+# === Print Summary ===
+print(f"--- {month_name} Summary ---")
+print(f"Total Expenses: ${total_expenses:.2f}")
+print(f"Savings Added: ${savings:.2f}")
+print(f"Remaining Balance: ${remaining_balance:.2f}\n")
+
+# === Show Expense Breakdown ===
+print("Expense Breakdown:")
+for exp in fixed_expenses:
+    print(f"  - {exp['date']}: {exp['description']} - ${exp['amount']} ({exp['category']})")
